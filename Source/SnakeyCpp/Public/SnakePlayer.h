@@ -4,18 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "ASnakePlayer.generated.h"
+#include "SnakePlayer.generated.h"
 
 class UInputAction;
+class UCameraComponent;
+class UInputMappingContext;
+class UStaticMeshComponent;
+class USpringArmComponent;
+class USphereComponent;
 
 UCLASS()
-class SNAKEYCPP_API AASnakePlayer : public APawn
+class SNAKEYCPP_API ASnakePlayer : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	AASnakePlayer();
+	ASnakePlayer();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UEnhancedInputComponent> InputComponent;

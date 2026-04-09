@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ASnakeGrid.generated.h"
+#include "SnakeGrid.generated.h"
 
 UCLASS()
-class SNAKEYCPP_API AASnakeGrid : public AActor
+class SNAKEYCPP_API ASnakeGrid : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AASnakeGrid();
+	ASnakeGrid();
 
 protected:
 	// Called when the game starts or when spawned
