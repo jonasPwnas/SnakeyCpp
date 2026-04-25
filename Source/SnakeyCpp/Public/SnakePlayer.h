@@ -23,7 +23,7 @@ public:
 	ASnakePlayer();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UEnhancedInputComponent> InputComponent;
+	TObjectPtr<UEnhancedInputComponent> SnakeInputComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> UpAction;
