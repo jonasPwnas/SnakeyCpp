@@ -17,7 +17,8 @@ ASnakePlayer::ASnakePlayer()
 void ASnakePlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	MovementSpeed = BaseMovementSpeed;
+	TurnSpeed = BaseTurnSpeed;
 }
 
 // Called every frame
@@ -25,6 +26,8 @@ void ASnakePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	MoveSnekForward(DeltaTime);
+	
 }
 
 // Called to bind functionality to input
@@ -32,5 +35,30 @@ void ASnakePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ASnakePlayer::MoveSnekForward(float DeltaTime)
+{
+	SetActorLocation(GetActorLocation() + GetActorForwardVector() * MovementSpeed * DeltaTime);
+}
+
+void ASnakePlayer::SetMovementSpeed(float Speed, bool bReset)
+{
+	if (bReset)
+	{
+		MovementSpeed = BaseMovementSpeed;
+		return;
+	}
+	MovementSpeed = MovementSpeed + Speed;
+}
+
+void ASnakePlayer::SetTurnSpeed(float Speed, bool bReset)
+{
+	if (bReset)
+	{
+		TurnSpeed = BaseTurnSpeed;
+		return;
+	}
+	TurnSpeed = TurnSpeed + Speed;
 }
 

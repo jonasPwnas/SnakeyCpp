@@ -19,7 +19,6 @@ class SNAKEYCPP_API ASnakePlayer : public APawn
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
 	ASnakePlayer();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -36,6 +35,13 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> RightAction;
+
+	///Value at start of game
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
+	float BaseMovementSpeed = 100.0f;
+	///Value at start of game
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
+	float BaseTurnSpeed = 100.0f;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -44,8 +50,17 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
+	void MoveSnekForward(float DeltaTime);
+	void SetMovementSpeed(float Speed, bool bReset);
+	void SetTurnSpeed(float Speed, bool bReset);
+	
+private:
+	///Value we use and can modify
+	float MovementSpeed = 100.0f;
+	///Value we use and can modify
+	float TurnSpeed = 100.0f;
 };
