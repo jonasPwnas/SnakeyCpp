@@ -40,10 +40,12 @@ public:
 	UInputMappingContext* InputMapping;
 	///Value at start of game
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
-	float BaseMovementSpeed = 100.0f;
+	float BaseMovementSpeed = 150.0f;
 	///Value at start of game
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
 	float BaseTurnSpeed = 10.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
+	float FoodSpeedIncrease = 20.f;
 	
 	//BODDDY!!
 	UPROPERTY(EditAnywhere, Category = "SNEK BODY")

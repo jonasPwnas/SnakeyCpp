@@ -103,7 +103,7 @@ void ASnakePlayer::SpawnBodyParts(int32 BodiesToSpawn)
 		NewBody->SetupConstraint(BodySpacing * 0.5f);
 		NewBody->LinkToPreviousBody(AttachTo);
 		BodyParts.Add(NewBody);
-		SetMovementSpeed(10.f, false);
+		SetMovementSpeed(FoodSpeedIncrease, false);
 	}
 }
 
