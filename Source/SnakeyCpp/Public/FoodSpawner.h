@@ -35,11 +35,11 @@ protected:
 	float SnakeClearRadius = 150.f;
 
 	UPROPERTY(EditAnywhere, Category = "Food")
-	float FoodClearRadius = 100.f;
+	float WallClearRadius = 320.f;
 
 	UPROPERTY(EditAnywhere, Category = "Food")
 	int32 MaxPlacementAttempts = 30;
 	
 	UPROPERTY(EditAnywhere, Category = "Food")
-	float FieldWallOffset = 350.f;
+	float FieldWallOffset = 450.f;
 };

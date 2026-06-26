@@ -12,7 +12,7 @@ void ASnakeGameMode::BeginPlay()
 	
 	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ASnakeGameMode::DelayedPlayerSpawn, 1.0f);
 	
-	GetWorldTimerManager().SetTimer(CountDownTimerHandle, this, &ASnakeGameMode::UpdateCountdown, 1.0f, true, 5.0f);
+	GetWorldTimerManager().SetTimer(CountDownTimerHandle, this, &ASnakeGameMode::UpdateCountdown, 1.0f, true, 3.7f);
 	
 	ASnakePlayer::OnAnySnekDied.AddDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
 	ASnakePlayer::OnAnySnekGrew.AddDynamic(this, &ASnakeGameMode::SomeoneGrewOhYes);
@@ -22,6 +22,7 @@ void ASnakeGameMode::BeginPlay()
 void ASnakeGameMode::EndPlay(const EEndPlayReason::Type Param)
 {
 	Super::EndPlay(Param);
+	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 	SpawnTimerHandle.Invalidate();
 	ASnakePlayer::OnAnySnekDied.RemoveDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
 }
@@ -62,6 +63,7 @@ void ASnakeGameMode::UpdateCountdown()
 	
 	if (GameStartCountdown <= 0)
 	{
+		GetWorldTimerManager().ClearTimer(CountDownTimerHandle);
 		CountDownTimerHandle.Invalidate();
 		OnStart.Broadcast(true);
 		//GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Magenta, FString("CONTDOWN finiiiiished"));
@@ -98,7 +100,7 @@ void ASnakeGameMode::DelayedPlayerSpawn()
 	if (ASnakePlayer* Snek = Cast<ASnakePlayer>(Pawn))
 	{
 		Snek->SnekPlayerIndex = 1;
-		Snek->bCanMove = false;
+		//Snek->bCanMove = false;
 	}
 	
 	IPlatformInputDeviceMapper& Mapper = IPlatformInputDeviceMapper::Get();

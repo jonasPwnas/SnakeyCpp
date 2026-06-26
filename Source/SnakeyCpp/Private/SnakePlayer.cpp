@@ -39,6 +39,7 @@ void ASnakePlayer::BeginPlay()
 	if (ASnakeGameMode* Mode = Cast<ASnakeGameMode>(Found))
 	{
 		Mode->OnStart.AddDynamic(this, &ASnakePlayer::AllowMovement);
+		StarterBodyAmount = Mode->SnakeStartLength;
 	}
 	
 	//Movement setup

@@ -43,6 +43,9 @@ public:
 	int32 GameStartCountdown = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
+	int32 SnakeStartLength = 2;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
 	int32 WinningScore = 10;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)

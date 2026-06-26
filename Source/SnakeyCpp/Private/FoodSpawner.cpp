@@ -6,6 +6,7 @@
 #include "SnakePhysBodyPart.h"
 #include "WallSpawner.h"
 #include "SnakePlayer.h"
+#include "SnakeWall.h"
 #include "Kismet/GameplayStatics.h"
 
 AFoodSpawner::AFoodSpawner()
@@ -52,11 +53,13 @@ FVector AFoodSpawner::GetValidFoodLocation() const
     const float HalfD = FieldSize.Y * 0.5f;
 
     TArray<AActor*> Snakes;
-    TArray<AActor*> Foods;
+    TArray<AActor*> Walls;
+    //TArray<AActor*> Foods;
     if (World)
     {
         UGameplayStatics::GetAllActorsOfClass(World, ASnakePlayer::StaticClass(), Snakes);
-        UGameplayStatics::GetAllActorsOfClass(World, AFoodActor::StaticClass(), Foods);
+        UGameplayStatics::GetAllActorsOfClass(World, ASnakeWall::StaticClass(), Walls);
+        //UGameplayStatics::GetAllActorsOfClass(World, AFoodActor::StaticClass(), Foods);
     }
 
     FVector Candidate = FVector(Center.X, Center.Y, Center.Z + SpawnHeight);
@@ -98,10 +101,10 @@ FVector AFoodSpawner::GetValidFoodLocation() const
         
         if (!bTooClose)
         {
-            for (AActor* Food : Foods)
+            for (AActor* Wall : Walls)
             {
-                if (!Food) continue;
-                if (FVector::Dist2D(Candidate, Food->GetActorLocation()) < FoodClearRadius)
+                if (!Wall) continue;
+                if (FVector::Dist2D(Candidate, Wall->GetActorLocation()) < WallClearRadius)
                 {
                     bTooClose = true;
                     break;
