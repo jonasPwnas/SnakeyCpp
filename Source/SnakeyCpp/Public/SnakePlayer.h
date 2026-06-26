@@ -63,6 +63,8 @@ public:
 	
 	//BODDDY!!
 	UPROPERTY(EditAnywhere, Category = "SNEK BODY")
+	UMaterialInterface* Player2HeadMaterial;
+	UPROPERTY(EditAnywhere, Category = "SNEK BODY")
 	TSubclassOf<ASnakePhysBodyPart> BodyClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SNEK BODY")
 	int32 StarterBodyAmount = 1;
@@ -99,6 +101,7 @@ public:
 	UFUNCTION(Blueprintable, BlueprintCallable)
 	void Die();
 	
+	void ApplyPlayer2HeadMaterial();
 	void SetDesiredDirection(const FInputActionValue& InputValue);
 	void SteerSnek(float DeltaTime);
 	void MoveSnek(float DeltaTime);

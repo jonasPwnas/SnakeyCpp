@@ -100,6 +100,7 @@ void ASnakeGameMode::DelayedPlayerSpawn()
 	if (ASnakePlayer* Snek = Cast<ASnakePlayer>(Pawn))
 	{
 		Snek->SnekPlayerIndex = 1;
+		Snek->ApplyPlayer2HeadMaterial();
 		//Snek->bCanMove = false;
 	}
 	

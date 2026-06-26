@@ -9,6 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "InputActionValue.h"
 #include "SnakeGameMode.h"
+#include "ViewportInteractionTypes.h"
 #include "Kismet/GameplayStatics.h"
 
 FOnSnekDied ASnakePlayer::OnAnySnekDied;
@@ -190,6 +191,12 @@ void ASnakePlayer::Die()
 {
 	OnAnySnekDied.Broadcast(this);
 	GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Red, FString("Oooof biiiig death"));
+}
+
+void ASnakePlayer::ApplyPlayer2HeadMaterial()
+{
+	if (Player2HeadMaterial)
+		BodyMesh->SetMaterial(0, Player2HeadMaterial);
 }
 
 void ASnakePlayer::SteerSnek(float DeltaTime)
