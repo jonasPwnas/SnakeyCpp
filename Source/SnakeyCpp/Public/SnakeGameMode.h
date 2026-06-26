@@ -45,10 +45,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 WinningScore = 10;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
 	int32 Player1Score;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
 	int32 Player2Score;
 	
 	UFUNCTION()
@@ -57,6 +57,8 @@ public:
 	void UpdateCountdown();
 	UFUNCTION(BlueprintNativeEvent)
 	void SomeoneDiedOhNo(ASnakePlayer* Player);
+	UFUNCTION(BlueprintNativeEvent)
+	void SomeoneGrewOhYes(ASnakePlayer* Player);
 	
 	FTimerHandle CountDownTimerHandle;
 	

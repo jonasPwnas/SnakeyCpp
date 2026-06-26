@@ -9,6 +9,11 @@ AWallSpawner::AWallSpawner()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+FVector2D AWallSpawner::GetFieldSize()
+{
+	return FieldSize;
+}
+
 void AWallSpawner::BeginPlay()
 {
 	Super::BeginPlay();

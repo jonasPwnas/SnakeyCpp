@@ -16,6 +16,7 @@ class USphereComponent;
 struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSnekDied, ASnakePlayer*, DeadPlayer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSnekGrow, ASnakePlayer*, GrowPlayer);
 
 UCLASS()
 class SNAKEYCPP_API ASnakePlayer : public APawn
@@ -27,6 +28,7 @@ public:
 	
 	//Events
 	static FOnSnekDied OnAnySnekDied;
+	static FOnSnekGrow OnAnySnekGrew;
 	
 	//Identifier
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)

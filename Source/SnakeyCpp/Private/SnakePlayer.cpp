@@ -4,6 +4,7 @@
 #include "SnakePlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "FoodActor.h"
 #include "SnakePhysBodyPart.h"
 #include "Components/SphereComponent.h"
 #include "InputActionValue.h"
@@ -11,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 
 FOnSnekDied ASnakePlayer::OnAnySnekDied;
+FOnSnekGrow ASnakePlayer::OnAnySnekGrew;
 
 // Sets default values
 ASnakePlayer::ASnakePlayer()
@@ -155,10 +157,17 @@ void ASnakePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void ASnakePlayer::OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Sweep)
 {
+	if (!OtherActor || OtherActor == this) return;
+	
 	if (OtherActor->ActorHasTag("Food"))
 	{
-		SpawnBodyParts(1);
-		return;
+		if (AFoodActor* Food = Cast<AFoodActor>(OtherActor))
+		{
+			Food->Relocate();
+			SpawnBodyParts(1);
+			OnAnySnekGrew.Broadcast(this);
+			return;
+		}
 	}
 	
 	//Would have liked to do something cool when eating anothers body,

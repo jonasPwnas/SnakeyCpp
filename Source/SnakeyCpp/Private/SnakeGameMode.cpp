@@ -16,6 +16,7 @@ void ASnakeGameMode::BeginPlay()
 	GetWorldTimerManager().SetTimer(CountDownTimerHandle, this, &ASnakeGameMode::UpdateCountdown, 1.0f, true, 5.0f);
 	
 	ASnakePlayer::OnAnySnekDied.AddDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
+	ASnakePlayer::OnAnySnekGrew.AddDynamic(this, &ASnakeGameMode::SomeoneGrewOhYes);
 	
 }
 
@@ -68,6 +69,16 @@ void ASnakeGameMode::UpdateCountdown()
 		OnStart.Broadcast(true);
 		//GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Magenta, FString("CONTDOWN finiiiiished"));
 	}
+}
+
+void ASnakeGameMode::SomeoneGrewOhYes_Implementation(ASnakePlayer* Player)
+{
+	//OutToBP and INTO Hud wiiiie
+	
+	//bool bIsPlayer1 = Player->SnekPlayerIndex == 0;
+	//AddScore(bIsPlayer1);
+	//GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Emerald, FString
+	//	("we added SCORE!  p1:  " + Player1Score + Player2Score));
 }
 
 void ASnakeGameMode::SomeoneDiedOhNo_Implementation(ASnakePlayer* Player)

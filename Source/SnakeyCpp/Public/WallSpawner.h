@@ -15,20 +15,23 @@ class SNAKEYCPP_API AWallSpawner : public AActor
 public:
 	AWallSpawner();
 
-protected:
-	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere, Category="Arena")
-	TSubclassOf<ASnakeWall> WallClass;
-
 	UPROPERTY(EditAnywhere, Category="Arena")
 	FVector2D FieldSize = FVector2D(2000.f, 2000.f);
-
+	
 	UPROPERTY(EditAnywhere, Category="Arena")
 	float WallThickness = 50.f;
 
 	UPROPERTY(EditAnywhere, Category="Arena")
 	float WallHeight = 200.f;
+	
+	UFUNCTION()
+	FVector2D GetFieldSize();
+	
+protected:
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, Category="Arena")
+	TSubclassOf<ASnakeWall> WallClass;
 
 	void SpawnWalls();
 };
