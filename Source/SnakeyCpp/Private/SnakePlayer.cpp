@@ -160,7 +160,13 @@ void ASnakePlayer::OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	
 	//Would have liked to do something col when eating anothers body,
 	//like just clipping that snake there, buuuut I have no time left :')
-	if (OtherActor->ActorHasTag("Wall") || OtherActor->ActorHasTag("Body"))
+	if (OtherActor->ActorHasTag("Wall"))
+	{
+		Die();
+		return;
+	}
+	
+	if (OtherActor->ActorHasTag("Body"))
 	{
 		Die();
 	}
