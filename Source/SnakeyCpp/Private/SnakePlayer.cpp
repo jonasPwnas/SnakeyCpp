@@ -4,52 +4,160 @@
 #include "SnakePlayer.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SnakePhysBodyPart.h"
+#include "Components/SphereComponent.h"
+#include "InputActionValue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASnakePlayer::ASnakePlayer()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
+	SetRootComponent(BodyMesh);
+
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	CollisionSphere->SetupAttachment(BodyMesh);
 }
 
 // Called when the game starts or when spawned
 void ASnakePlayer::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//Movement setup
 	MovementSpeed = BaseMovementSpeed;
 	TurnSpeed = BaseTurnSpeed;
+	
+	//Spawn initial bodies
+	UWorld* World = GetWorld();
+	UPrimitiveComponent* AttachTo = BodyMesh;
+	FVector TailLocation = GetActorLocation();
+	const FRotator SnakeRotation = GetActorRotation();
+	FVector SpawnLocation = TailLocation - GetActorForwardVector() * BodySpacing;
+	ASnakePhysBodyPart* NewBody = World->SpawnActor<ASnakePhysBodyPart>
+	(
+		BodyClass, SpawnLocation, SnakeRotation
+	);
+	if (!NewBody) return;
+	NewBody->SetupConstraint(100.f);
+	NewBody->LinkToPreviousBody(AttachTo);
+	BodyParts.Add(NewBody);
+	if (StarterBodyAmount > 1)
+		SpawnBodyParts(StarterBodyAmount - 1);
+	
+}
+
+void ASnakePlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	AActor* camera = UGameplayStatics::GetActorOfClass(GetWorld(), ASnakeCamera::StaticClass());
+	
+	SharedCamera = Cast<ASnakeCamera>(camera);
+	
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		PlayerController->bAutoManageActiveCameraTarget = false;
+		PlayerController->SetViewTargetWithBlend(SharedCamera, 0.1f);
+	}
 }
 
 // Called every frame
 void ASnakePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SteerSnek(DeltaTime);
+	MoveSnek(DeltaTime);
+}
 
-	MoveSnekForward(DeltaTime);
+void ASnakePlayer::SetDesiredDirection(const FInputActionValue& InputValue)
+{
+	if (!InputValue.Get<FVector2D>().IsNearlyZero())
+		DesiredDirection = InputValue.Get<FVector2D>();
 	
+}
+
+void ASnakePlayer::SpawnBodyParts(int32 BodiesToSpawn)
+{
+	if (!BodyClass) return;
+	UWorld* World = GetWorld();
+	
+	const FRotator SnakeRotation = GetActorRotation();
+	const FVector  BackDir       = -GetActorForwardVector();
+
+	for (int32 i = 0; i < BodiesToSpawn; i++)
+	{
+		ASnakePhysBodyPart* LastBody = BodyParts.Last();
+		UPrimitiveComponent* AttachTo = LastBody->BodyMesh;
+
+		FVector SpawnLocation = LastBody->GetActorLocation() + BackDir * BodySpacing;
+
+		ASnakePhysBodyPart* NewBody = World->SpawnActor<ASnakePhysBodyPart>(
+			BodyClass, SpawnLocation, SnakeRotation);
+
+		if (!NewBody) return;
+
+		NewBody->SetupConstraint(BodySpacing * 0.5f);
+		NewBody->LinkToPreviousBody(AttachTo);
+		BodyParts.Add(NewBody);
+		SetMovementSpeed(10.f, false);
+	}
 }
 
 // Called to bind functionality to input
 void ASnakePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
+	//Input setup
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = 
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(InputMapping, 0);
+		}
+	}
+	
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EIC->BindAction(SteerAction, ETriggerEvent::Triggered, this, &ASnakePlayer::SetDesiredDirection);
+		EIC->BindAction(SteerAction, ETriggerEvent::Completed, this, &ASnakePlayer::SetDesiredDirection);
+	}
+	
 }
 
-void ASnakePlayer::MoveSnekForward(float DeltaTime)
+void ASnakePlayer::SteerSnek(float DeltaTime)
+{
+	if (!DesiredDirection.IsNearlyZero())
+	{
+		float TargetYaw = FMath::RadiansToDegrees(
+			FMath::Atan2(DesiredDirection.Y, -DesiredDirection.X));
+
+		FRotator CurrentRot = GetActorRotation();
+		FRotator TargetRot(0.f, TargetYaw, 0.f);
+
+		FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, TurnSpeed);
+		SetActorRotation(NewRot);
+	}
+}
+
+void ASnakePlayer::MoveSnek(float DeltaTime)
 {
 	SetActorLocation(GetActorLocation() + GetActorForwardVector() * MovementSpeed * DeltaTime);
 }
 
-void ASnakePlayer::SetMovementSpeed(float Speed, bool bReset)
+void ASnakePlayer::SetMovementSpeed(float SpeedToAdd, bool bReset)
 {
 	if (bReset)
 	{
 		MovementSpeed = BaseMovementSpeed;
 		return;
 	}
-	MovementSpeed = MovementSpeed + Speed;
+	MovementSpeed = MovementSpeed + SpeedToAdd;
 }
 
 void ASnakePlayer::SetTurnSpeed(float Speed, bool bReset)
@@ -61,4 +169,3 @@ void ASnakePlayer::SetTurnSpeed(float Speed, bool bReset)
 	}
 	TurnSpeed = TurnSpeed + Speed;
 }
-
