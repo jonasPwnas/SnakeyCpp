@@ -9,7 +9,6 @@
 #include "Components/SphereComponent.h"
 #include "InputActionValue.h"
 #include "SnakeGameMode.h"
-#include "ViewportInteractionTypes.h"
 #include "Kismet/GameplayStatics.h"
 
 FOnSnekDied ASnakePlayer::OnAnySnekDied;
