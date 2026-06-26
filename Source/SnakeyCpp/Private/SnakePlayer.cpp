@@ -7,6 +7,7 @@
 #include "SnakePhysBodyPart.h"
 #include "Components/SphereComponent.h"
 #include "InputActionValue.h"
+#include "SnakeGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -25,11 +26,23 @@ ASnakePlayer::ASnakePlayer()
 // Called when the game starts or when spawned
 void ASnakePlayer::BeginPlay()
 {
+	SetActorTickEnabled(false);
 	Super::BeginPlay();
+	
+	//Bind events
+	AActor* Found = UGameplayStatics::GetActorOfClass(GetWorld(), ASnakeGameMode::StaticClass());
+	if (ASnakeGameMode* Mode = Cast<ASnakeGameMode>(Found))
+	{
+		Mode->OnStart.AddDynamic(this, &ASnakePlayer::AllowMovement);
+	}
 	
 	//Movement setup
 	MovementSpeed = BaseMovementSpeed;
 	TurnSpeed = BaseTurnSpeed;
+	
+	//Bind overlap
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASnakePlayer::OnHeadOverlap);
+	CollisionSphere->SetGenerateOverlapEvents(true);
 	
 	//Spawn initial bodies
 	UWorld* World = GetWorld();
@@ -71,6 +84,12 @@ void ASnakePlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	SteerSnek(DeltaTime);
 	MoveSnek(DeltaTime);
+}
+
+void ASnakePlayer::AllowMovement()
+{
+	SetActorTickEnabled(true);
+	GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Emerald, FString("Allow movement"));
 }
 
 void ASnakePlayer::SetDesiredDirection(const FInputActionValue& InputValue)
@@ -128,6 +147,30 @@ void ASnakePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		EIC->BindAction(SteerAction, ETriggerEvent::Completed, this, &ASnakePlayer::SetDesiredDirection);
 	}
 	
+}
+
+void ASnakePlayer::OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Sweep)
+{
+	if (OtherActor->ActorHasTag("Food"))
+	{
+		SpawnBodyParts(1);
+		return;
+	}
+	
+	//Would have liked to do something col when eating anothers body,
+	//like just clipping that snake there, buuuut I have no time left :')
+	if (OtherActor->ActorHasTag("Wall") || OtherActor->ActorHasTag("Body"))
+	{
+		Die();
+	}
+	
+}
+
+void ASnakePlayer::Die()
+{
+	OnSnekDied.Broadcast(this);
+	GEngine->AddOnScreenDebugMessage(1, 0.6f, FColor::Red, FString("Oooof biiiig death"));
 }
 
 void ASnakePlayer::SteerSnek(float DeltaTime)

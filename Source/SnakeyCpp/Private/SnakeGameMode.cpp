@@ -3,6 +3,8 @@
 
 #include "SnakeGameMode.h"
 
+#include "SnakePlayer.h"
+#include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 void ASnakeGameMode::BeginPlay()
@@ -12,6 +14,64 @@ void ASnakeGameMode::BeginPlay()
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASnakeGameMode::DelayedPlayerSpawn, 1.0f);
 	
+	GetWorldTimerManager().SetTimer(CountDownTimerHandle, this, &ASnakeGameMode::UpdateCountdown, 1.0f, true, 5.0f);
+	
+	//Bind events
+	AActor* Found = UGameplayStatics::GetActorOfClass(GetWorld(), ASnakePlayer::StaticClass());
+	if (ASnakePlayer* Playah = Cast<ASnakePlayer>(Found))
+	{
+		Playah->OnSnekDied.AddDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
+	}
+	
+}
+
+AActor* ASnakeGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	TArray<AActor*> Starts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), Starts);
+
+	// Return the first start we haven't already used.
+	for (AActor* Start : Starts)
+	{
+		if (!UsedStarts.Contains(Start))
+		{
+			UsedStarts.Add(Start);
+			return Start;
+		}
+	}
+
+	// Fallback: if we somehow ran out, defer to default behavior.
+	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+void ASnakeGameMode::AddScore(bool bPlayer1)
+{
+	if (bPlayer1)
+		Player1Score++;
+	else
+	{
+		Player2Score++;
+	}
+}
+
+void ASnakeGameMode::UpdateCountdown()
+{
+	GameStartCountdown = GameStartCountdown -1;
+	OnCountdownChanged.Broadcast(GameStartCountdown);
+	
+	GEngine->AddOnScreenDebugMessage(1, 0.6f, FColor::Emerald, FString("CONTDOWN!!! wowsa"));
+	
+	if (GameStartCountdown <= 0)
+	{
+		CountDownTimerHandle.Invalidate();
+		OnStart.Broadcast();
+		GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Magenta, FString("CONTDOWN finiiiiished"));
+	}
+}
+
+void ASnakeGameMode::SomeoneDiedOhNo_Implementation(ASnakePlayer* Player)
+{
+	//Might spawn vfx in BPs instead? yeah.
 }
 
 void ASnakeGameMode::DelayedPlayerSpawn()
@@ -31,7 +91,7 @@ void ASnakeGameMode::DelayedPlayerSpawn()
 	for (const FInputDeviceId& Dev : Devices)
 	{
 		if (Dev == Mapper.GetDefaultInputDevice())
-			continue;   // skip keyboard/mouse — leave on player 0
+			continue;
 
 		FPlatformUserId Current = Mapper.GetUserForInputDevice(Dev);
 		if (Current != Player1User)

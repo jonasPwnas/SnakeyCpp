@@ -15,6 +15,8 @@ class USpringArmComponent;
 class USphereComponent;
 struct FInputActionValue;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSnekDied, ASnakePlayer*, DeadPlayer);
+
 UCLASS()
 class SNAKEYCPP_API ASnakePlayer : public APawn
 {
@@ -22,6 +24,10 @@ class SNAKEYCPP_API ASnakePlayer : public APawn
 
 public:
 	ASnakePlayer();
+	
+	//Events
+	UPROPERTY(Blueprintable)
+	FOnSnekDied OnSnekDied;
 	
 	//Body
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -69,9 +75,19 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	UFUNCTION()
+	void OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& Sweep);
+
+	void Die();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	UFUNCTION()
+	void AllowMovement();
 	
 	void SetDesiredDirection(const FInputActionValue& InputValue);
 	void SteerSnek(float DeltaTime);
