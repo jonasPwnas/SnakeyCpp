@@ -2,7 +2,6 @@
 
 
 #include "SnakeGameMode.h"
-
 #include "SnakePlayer.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -32,7 +31,6 @@ AActor* ASnakeGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	TArray<AActor*> Starts;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), Starts);
 
-	// Return the first start we haven't already used.
 	for (AActor* Start : Starts)
 	{
 		if (!UsedStarts.Contains(Start))
@@ -42,7 +40,6 @@ AActor* ASnakeGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		}
 	}
 
-	// Fallback: if we somehow ran out, defer to default behavior.
 	return Super::ChoosePlayerStart_Implementation(Player);
 }
 
@@ -101,6 +98,7 @@ void ASnakeGameMode::DelayedPlayerSpawn()
 	if (ASnakePlayer* Snek = Cast<ASnakePlayer>(Pawn))
 	{
 		Snek->SnekPlayerIndex = 1;
+		Snek->bCanMove = false;
 	}
 	
 	IPlatformInputDeviceMapper& Mapper = IPlatformInputDeviceMapper::Get();

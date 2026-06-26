@@ -88,7 +88,6 @@ protected:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& Sweep);
 
-	void Die();
 	
 public:	
 	// Called every frame
@@ -96,6 +95,9 @@ public:
 	
 	UFUNCTION(Blueprintable, BlueprintCallable)
 	void AllowMovement(bool bAllow);
+	
+	UFUNCTION(Blueprintable, BlueprintCallable)
+	void Die();
 	
 	void SetDesiredDirection(const FInputActionValue& InputValue);
 	void SteerSnek(float DeltaTime);

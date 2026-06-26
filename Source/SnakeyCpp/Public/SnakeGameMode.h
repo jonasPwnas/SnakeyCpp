@@ -42,7 +42,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 GameStartCountdown = 3;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
 	int32 WinningScore = 10;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
