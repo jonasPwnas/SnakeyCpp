@@ -26,8 +26,11 @@ public:
 	ASnakePlayer();
 	
 	//Events
-	UPROPERTY(Blueprintable)
-	FOnSnekDied OnSnekDied;
+	static FOnSnekDied OnAnySnekDied;
+	
+	//Identifier
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Blueprintable)
+	int32 SnekPlayerIndex = 0;
 	
 	//Body
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -52,6 +55,9 @@ public:
 	float BaseTurnSpeed = 10.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement Settings")
 	float FoodSpeedIncrease = 20.f;
+	
+	UPROPERTY(BlueprintReadWrite, Blueprintable)
+	bool bCanMove = true;
 	
 	//BODDDY!!
 	UPROPERTY(EditAnywhere, Category = "SNEK BODY")
@@ -86,8 +92,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UFUNCTION()
-	void AllowMovement();
+	UFUNCTION(Blueprintable, BlueprintCallable)
+	void AllowMovement(bool bAllow);
 	
 	void SetDesiredDirection(const FInputActionValue& InputValue);
 	void SteerSnek(float DeltaTime);

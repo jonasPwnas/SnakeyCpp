@@ -9,7 +9,7 @@
 
 
 class ASnakePlayer;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartSession);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStartSession, bool, bStartSession);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReachedMaxScore, ASnakePlayer*, WinnerPlayer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCountdownChanged, int32, NewCount);
 
@@ -20,6 +20,7 @@ class SNAKEYCPP_API ASnakeGameMode : public AGameModeBase
 	
 protected:	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type);
 
 public:
 	//Player start
@@ -27,12 +28,15 @@ public:
 	UPROPERTY()
 	TArray<AActor*> UsedStarts;
 	
+	UPROPERTY()
+	FTimerHandle SpawnTimerHandle;
+	
 	//Event instances
-	UPROPERTY(Blueprintable)
+	UPROPERTY(Blueprintable, BlueprintAssignable, BlueprintCallable)
 	FOnStartSession OnStart;
-	UPROPERTY(Blueprintable)
+	UPROPERTY(Blueprintable, BlueprintAssignable)
 	FOnReachedMaxScore OnReachedMaxScore;
-	UPROPERTY(Blueprintable)
+	UPROPERTY(Blueprintable, BlueprintAssignable)
 	FOnCountdownChanged OnCountdownChanged;
 	
 	UPROPERTY(EditAnywhere)

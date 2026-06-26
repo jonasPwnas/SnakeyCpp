@@ -10,19 +10,20 @@
 void ASnakeGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ASnakeGameMode::DelayedPlayerSpawn, 1.0f);
+	
+	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ASnakeGameMode::DelayedPlayerSpawn, 1.0f);
 	
 	GetWorldTimerManager().SetTimer(CountDownTimerHandle, this, &ASnakeGameMode::UpdateCountdown, 1.0f, true, 5.0f);
 	
-	//Bind events
-	AActor* Found = UGameplayStatics::GetActorOfClass(GetWorld(), ASnakePlayer::StaticClass());
-	if (ASnakePlayer* Playah = Cast<ASnakePlayer>(Found))
-	{
-		Playah->OnSnekDied.AddDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
-	}
+	ASnakePlayer::OnAnySnekDied.AddDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
 	
+}
+
+void ASnakeGameMode::EndPlay(const EEndPlayReason::Type Param)
+{
+	Super::EndPlay(Param);
+	SpawnTimerHandle.Invalidate();
+	ASnakePlayer::OnAnySnekDied.RemoveDynamic(this, &ASnakeGameMode::SomeoneDiedOhNo);
 }
 
 AActor* ASnakeGameMode::ChoosePlayerStart_Implementation(AController* Player)
@@ -59,13 +60,13 @@ void ASnakeGameMode::UpdateCountdown()
 	GameStartCountdown = GameStartCountdown -1;
 	OnCountdownChanged.Broadcast(GameStartCountdown);
 	
-	GEngine->AddOnScreenDebugMessage(1, 0.6f, FColor::Emerald, FString("CONTDOWN!!! wowsa"));
+	//GEngine->AddOnScreenDebugMessage(1, 0.6f, FColor::Emerald, FString("CONTDOWN!!! wowsa"));
 	
 	if (GameStartCountdown <= 0)
 	{
 		CountDownTimerHandle.Invalidate();
-		OnStart.Broadcast();
-		GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Magenta, FString("CONTDOWN finiiiiished"));
+		OnStart.Broadcast(true);
+		//GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Magenta, FString("CONTDOWN finiiiiished"));
 	}
 }
 
@@ -77,6 +78,19 @@ void ASnakeGameMode::SomeoneDiedOhNo_Implementation(ASnakePlayer* Player)
 void ASnakeGameMode::DelayedPlayerSpawn()
 {
 	APlayerController* PC = UGameplayStatics::CreatePlayer(GetWorld(), 1, true);
+	if (!PC)
+	{
+		PC = UGameplayStatics::GetPlayerController(GetWorld(), 1);
+	}
+	
+	if (!PC) return;
+	
+	APawn* Pawn = PC->GetPawn();
+	
+	if (ASnakePlayer* Snek = Cast<ASnakePlayer>(Pawn))
+	{
+		Snek->SnekPlayerIndex = 1;
+	}
 	
 	IPlatformInputDeviceMapper& Mapper = IPlatformInputDeviceMapper::Get();
 
@@ -116,7 +130,6 @@ void ASnakeGameMode::DelayedPlayerSpawn()
 			Mapper.IsInputDeviceMappedToUnpairedUser(Dev));
 	}
 
-	// And what user each player controller actually has:
 	for (int32 i = 0; i < 2; ++i)
 	{
 		if (APlayerController* Moar = UGameplayStatics::GetPlayerController(GetWorld(), i))

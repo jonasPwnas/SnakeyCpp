@@ -10,6 +10,8 @@
 #include "SnakeGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
+FOnSnekDied ASnakePlayer::OnAnySnekDied;
+
 // Sets default values
 ASnakePlayer::ASnakePlayer()
 {
@@ -21,6 +23,7 @@ ASnakePlayer::ASnakePlayer()
 
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	CollisionSphere->SetupAttachment(BodyMesh);
+	CollisionSphere->SetGenerateOverlapEvents(true);
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +45,6 @@ void ASnakePlayer::BeginPlay()
 	
 	//Bind overlap
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASnakePlayer::OnHeadOverlap);
-	CollisionSphere->SetGenerateOverlapEvents(true);
 	
 	//Spawn initial bodies
 	UWorld* World = GetWorld();
@@ -81,15 +83,16 @@ void ASnakePlayer::PossessedBy(AController* NewController)
 // Called every frame
 void ASnakePlayer::Tick(float DeltaTime)
 {
+	if (!bCanMove) return;
+	
 	Super::Tick(DeltaTime);
 	SteerSnek(DeltaTime);
 	MoveSnek(DeltaTime);
 }
 
-void ASnakePlayer::AllowMovement()
+void ASnakePlayer::AllowMovement(bool bAllow)
 {
-	SetActorTickEnabled(true);
-	GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Emerald, FString("Allow movement"));
+	SetActorTickEnabled(bAllow);
 }
 
 void ASnakePlayer::SetDesiredDirection(const FInputActionValue& InputValue)
@@ -158,7 +161,7 @@ void ASnakePlayer::OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 		return;
 	}
 	
-	//Would have liked to do something col when eating anothers body,
+	//Would have liked to do something cool when eating anothers body,
 	//like just clipping that snake there, buuuut I have no time left :')
 	if (OtherActor->ActorHasTag("Wall"))
 	{
@@ -175,8 +178,8 @@ void ASnakePlayer::OnHeadOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 void ASnakePlayer::Die()
 {
-	OnSnekDied.Broadcast(this);
-	GEngine->AddOnScreenDebugMessage(1, 0.6f, FColor::Red, FString("Oooof biiiig death"));
+	OnAnySnekDied.Broadcast(this);
+	GEngine->AddOnScreenDebugMessage(1, 10.f, FColor::Red, FString("Oooof biiiig death"));
 }
 
 void ASnakePlayer::SteerSnek(float DeltaTime)
